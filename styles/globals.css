@@ -5,5 +5,7 @@
 
 /* Optional: Custom global styles for body */
 body {
-  @apply bg-gray-100 text-gray-800 font-sans;
+  background: linear-gradient(to right, #2b2d42, #8d99ae);
+  color: #ffffff;
+  font-family: 'Roboto', sans-serif;
 }

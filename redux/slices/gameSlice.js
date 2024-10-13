@@ -1,3 +1,4 @@
+// redux/slices/gameSlice.js
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
@@ -26,16 +27,16 @@ const gameSlice = createSlice({
       if (state.oceans < state.maxOceans) state.oceans += 1;
       checkGameWin(state);
     },
-    saveGame: (state, action) => {
-      // logic for saving game state
+    saveGame: (state) => {
+      // No need to change this logic as it will be handled in the component
     },
     loadGame: (state, action) => {
-      // logic for loading game state
-      return { ...state, ...action.payload };
+      return { ...state, ...action.payload }; // Load the game state
     },
   },
 });
 
+// Function to check if the game is won
 const checkGameWin = (state) => {
   if (
     state.oxygen >= state.maxOxygen &&
@@ -47,4 +48,5 @@ const checkGameWin = (state) => {
 };
 
 export const { increaseOxygen, increaseTemperature, placeOceanTile, saveGame, loadGame } = gameSlice.actions;
+
 export default gameSlice.reducer;

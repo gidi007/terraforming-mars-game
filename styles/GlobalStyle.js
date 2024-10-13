@@ -3,9 +3,10 @@ import { createGlobalStyle } from 'styled-components';
 
 const GlobalStyle = createGlobalStyle`
   body {
-    margin: 0;
-    font-family: 'Arial', sans-serif;
-    background-color: #f4f4f4;
+  background: linear-gradient(to right, #2b2d42, #8d99ae);
+  color: #ffffff;
+  font-family: 'Roboto', sans-serif;
+}
   }
 
   .game-board, .player-board {
