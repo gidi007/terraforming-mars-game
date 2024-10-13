@@ -1,19 +1,34 @@
-// components/GameBoard.js
-import React, { useState } from 'react'; 
+import React, { useState, useEffect } from 'react'; 
 import { useDispatch, useSelector } from 'react-redux';
-import { increaseOxygen, increaseTemperature, placeOceanTile } from '../redux/slices/gameSlice';
-import { toast } from 'react-toastify'; // Importing Toastify for notifications
-import 'react-toastify/dist/ReactToastify.css';
+import { 
+  increaseOxygen, 
+  increaseTemperature, 
+  placeOceanTile, 
+  increaseCredits, 
+  decreaseCredits, 
+  increasePlants, 
+  decreasePlants, 
+  increaseEnergy, 
+  decreaseEnergy 
+} from '../redux/slices/gameSlice';
+import { toast } from 'react-toastify'; // Keep this import
 
 export default function GameBoard() {
-  const { oxygen, temperature, oceans, gameWon } = useSelector((state) => state.game);
+  const { oxygen, temperature, oceans, credits, plants, energy, gameWon } = useSelector((state) => state.game);
   const dispatch = useDispatch();
   const [savedState, setSavedState] = useState(null); // Temporary state to store game data
 
+  // Use effect to set saved state after the initial render
+  useEffect(() => {
+    // Ensure we set savedState only in the client
+    const gameState = { oxygen, temperature, oceans, credits, plants, energy };
+    setSavedState(gameState);
+  }, [oxygen, temperature, oceans, credits, plants, energy]);
+
   const handleSave = () => {
-    const gameState = { oxygen, temperature, oceans };
+    const gameState = { oxygen, temperature, oceans, credits, plants, energy };
     setSavedState(gameState); // Save to temporary state
-    toast.success('Game saved!'); // Notify the user with a toast
+    toast.success('Game saved!', { position: 'top-right' }); // Change here
   };
 
   const handleLoad = () => {
@@ -22,62 +37,109 @@ export default function GameBoard() {
       dispatch(increaseOxygen(savedState.oxygen));
       dispatch(increaseTemperature(savedState.temperature));
       dispatch(placeOceanTile(savedState.oceans));
-      toast.info('Game loaded!'); // Notify the user with a toast
+      dispatch(increaseCredits(savedState.credits));
+      dispatch(increasePlants(savedState.plants));
+      dispatch(increaseEnergy(savedState.energy));
+      toast.success('Game loaded!', { position: 'top-right' }); // Change here
     } else {
-      toast.error('No game state saved!'); // Notify if there's no saved state
+      toast.error('No game state saved!', { position: 'top-right' }); // Change here
+    }
+  };
+
+  const triggerEvent = () => {
+    const resourceGain = Math.floor(Math.random() * 10) + 1; // Random resource amount
+    const randomEvent = Math.floor(Math.random() * 2); // Random event
+
+    if (randomEvent === 0) {
+      // Increase resources
+      dispatch(increaseCredits(resourceGain));
+      dispatch(increasePlants(resourceGain));
+      dispatch(increaseEnergy(resourceGain));
+      toast.success(`You gained ${resourceGain} resources!`, { position: 'top-right' }); // Change here
+    } else {
+      // Decrease resources randomly
+      const resourceType = Math.floor(Math.random() * 3);
+      if (resourceType === 0) {
+        dispatch(decreaseCredits(resourceGain));
+        toast.error(`You lost ${resourceGain} credits!`, { position: 'top-right' }); // Change here
+      } else if (resourceType === 1) {
+        dispatch(decreasePlants(resourceGain));
+        toast.error(`You lost ${resourceGain} plants!`, { position: 'top-right' }); // Change here
+      } else {
+        dispatch(decreaseEnergy(resourceGain));
+        toast.error(`You lost ${resourceGain} energy!`, { position: 'top-right' }); // Change here
+      }
     }
   };
 
   return (
     <div className="flex flex-col items-center p-10 bg-gray-900 text-white rounded-lg shadow-lg">
-      <h1 className="text-3xl font-bold mb-6">Mars Terraforming Status</h1>
+      <h1 className="text-2xl font-bold mb-6">Mars Terraforming Status</h1>
       {gameWon ? (
-        <div className="text-4xl font-semibold text-green-500 mb-4">Game Won! 🎉</div>
+        <div className="text-3xl font-semibold text-green-500">Game Won! 🎉</div>
       ) : (
         <>
           <div className="mb-4 text-lg">Oxygen: {oxygen}%</div>
           <div className="mb-4 text-lg">Temperature: {temperature}°C</div>
-          <div className="mb-6 text-lg">Oceans: {oceans} / 9</div>
+          <div className="mb-4 text-lg">Oceans: {oceans} / 9</div>
+          <div className="mb-4 text-lg">Credits: {credits}</div>
+          <div className="mb-4 text-lg">Plants: {plants}</div>
+          <div className="mb-4 text-lg">Energy: {energy}</div>
 
-          <div className="flex space-x-4">
+          <div className="space-x-4">
             <button
-              className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-6 rounded-lg shadow-md transition duration-200 transform hover:scale-105"
-              onClick={() => {
-                dispatch(increaseOxygen());
-                toast.success('Oxygen Increased!'); // Notify user
-              }}
+              className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg transition"
+              onClick={() => dispatch(increaseOxygen())}
             >
               Increase Oxygen
             </button>
             <button
-              className="bg-red-600 hover:bg-red-700 text-white py-2 px-6 rounded-lg shadow-md transition duration-200 transform hover:scale-105"
-              onClick={() => {
-                dispatch(increaseTemperature());
-                toast.success('Temperature Increased!'); // Notify user
-              }}
+              className="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg transition"
+              onClick={() => dispatch(increaseTemperature())}
             >
               Increase Temperature
             </button>
             <button
-              className="bg-teal-600 hover:bg-teal-700 text-white py-2 px-6 rounded-lg shadow-md transition duration-200 transform hover:scale-105"
-              onClick={() => {
-                dispatch(placeOceanTile());
-                toast.success('Ocean Tile Placed!'); // Notify user
-              }}
+              className="bg-teal-600 hover:bg-teal-700 text-white py-2 px-4 rounded-lg transition"
+              onClick={() => dispatch(placeOceanTile())}
             >
               Place Ocean Tile
             </button>
             <button
-              className="bg-yellow-600 hover:bg-yellow-700 text-white py-2 px-6 rounded-lg shadow-md transition duration-200 transform hover:scale-105"
+              className="bg-yellow-600 hover:bg-yellow-700 text-white py-2 px-4 rounded-lg transition"
+              onClick={() => {
+                dispatch(increaseCredits(5));
+                toast.success('Gained 5 credits!', { position: 'top-right' }); // Change here
+              }}
+            >
+              Gain Credits
+            </button>
+            <button
+              className="bg-orange-600 hover:bg-orange-700 text-white py-2 px-4 rounded-lg transition"
+              onClick={() => {
+                dispatch(decreaseCredits(3));
+                toast.success('Lost 3 credits!', { position: 'top-right' }); // Change here
+              }}
+            >
+              Lose Credits
+            </button>
+            <button
+              className="bg-purple-600 hover:bg-purple-700 text-white py-2 px-4 rounded-lg transition"
               onClick={handleSave}
             >
               Save Game
             </button>
             <button
-              className="bg-purple-600 hover:bg-purple-700 text-white py-2 px-6 rounded-lg shadow-md transition duration-200 transform hover:scale-105"
+              className="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-lg transition"
               onClick={handleLoad}
             >
               Load Game
+            </button>
+            <button
+              className="bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg transition"
+              onClick={triggerEvent}
+            >
+              Trigger Random Event
             </button>
           </div>
         </>
