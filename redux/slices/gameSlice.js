@@ -1,4 +1,3 @@
-// redux/slices/gameSlice.js
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
@@ -37,7 +36,7 @@ const gameSlice = createSlice({
       if (state.credits >= action.payload) {
         state.credits -= action.payload;
       } else {
-        console.error('Insufficient credits to decrease.');
+        console.error('Not enough credits!');
       }
     },
     increasePlants: (state, action) => {
@@ -47,7 +46,7 @@ const gameSlice = createSlice({
       if (state.plants >= action.payload) {
         state.plants -= action.payload;
       } else {
-        console.error('Insufficient plants to decrease.');
+        console.error('Not enough plants!');
       }
     },
     increaseEnergy: (state, action) => {
@@ -57,25 +56,15 @@ const gameSlice = createSlice({
       if (state.energy >= action.payload) {
         state.energy -= action.payload;
       } else {
-        console.error('Insufficient energy to decrease.');
+        console.error('Not enough energy!');
       }
-    },
-    saveGame: (state) => {
-      // Logic for saving the game state can be handled in the component
-    },
-    loadGame: (state, action) => {
-      return { ...state, ...action.payload }; // Load the game state
     },
   },
 });
 
-// Function to check if the game is won
+// Check if the game is won
 const checkGameWin = (state) => {
-  if (
-    state.oxygen >= state.maxOxygen &&
-    state.temperature >= state.maxTemperature &&
-    state.oceans >= state.maxOceans
-  ) {
+  if (state.oxygen >= state.maxOxygen && state.temperature >= state.maxTemperature && state.oceans >= state.maxOceans) {
     state.gameWon = true;
   }
 };
@@ -90,8 +79,6 @@ export const {
   decreasePlants,
   increaseEnergy,
   decreaseEnergy,
-  saveGame,
-  loadGame,
 } = gameSlice.actions;
 
 export default gameSlice.reducer;

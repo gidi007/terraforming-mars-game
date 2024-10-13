@@ -86,6 +86,35 @@ export default function GameBoard() {
           <div className="mb-4 text-lg">Plants: {plants}</div>
           <div className="mb-4 text-lg">Energy: {energy}</div>
 
+          {/* Progress Bars */}
+          <div className="w-full mb-4">
+            <div className="text-sm mb-1">Oxygen Progress</div>
+            <div className="bg-gray-700 rounded-full h-2">
+              <div 
+                className="bg-green-500 h-full rounded-full" 
+                style={{ width: `${(oxygen / 14) * 100}%` }} 
+              />
+            </div>
+          </div>
+          <div className="w-full mb-4">
+            <div className="text-sm mb-1">Temperature Progress</div>
+            <div className="bg-gray-700 rounded-full h-2">
+              <div 
+                className="bg-orange-500 h-full rounded-full" 
+                style={{ width: `${((temperature + 30) / 38) * 100}%` }} 
+              />
+            </div>
+          </div>
+          <div className="w-full mb-4">
+            <div className="text-sm mb-1">Oceans Progress</div>
+            <div className="bg-gray-700 rounded-full h-2">
+              <div 
+                className="bg-blue-500 h-full rounded-full" 
+                style={{ width: `${(oceans / 9) * 100}%` }} 
+              />
+            </div>
+          </div>
+
           <div className="space-x-4">
             <button
               className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg transition"
