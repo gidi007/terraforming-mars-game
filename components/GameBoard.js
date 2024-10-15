@@ -11,10 +11,10 @@ import {
   increaseEnergy, 
   decreaseEnergy 
 } from '../redux/slices/gameSlice';
-import { toast } from 'react-toastify'; 
+import { toast } from 'react-toastify';
 
 const backgrounds = [
-  '/images/background1.jpg', // Ensure paths are correct
+  '/images/background1.jpg',
   '/images/background2.jpg',
   '/images/background5.jpg',
   '/images/background6.jpg',
@@ -26,13 +26,13 @@ export default function GameBoard() {
   const [savedState, setSavedState] = useState(null);
   const [currentBackgroundIndex, setCurrentBackgroundIndex] = useState(0);
 
-  // Handle changing backgrounds smoothly
+  // Smooth background change
   useEffect(() => {
     const intervalId = setInterval(() => {
       setCurrentBackgroundIndex((prevIndex) => (prevIndex + 1) % backgrounds.length);
-    }, 60000); // Change background every 60 seconds
+    }, 60000); 
 
-    return () => clearInterval(intervalId); // Cleanup on unmount
+    return () => clearInterval(intervalId);
   }, []);
 
   const currentBackground = backgrounds[currentBackgroundIndex];
@@ -68,113 +68,93 @@ export default function GameBoard() {
       toast.success(`You gained ${resourceGain} resources!`, { position: 'top-right' });
     } else {
       const resourceType = Math.floor(Math.random() * 3);
-      if (resourceType === 0) {
-        dispatch(decreaseCredits(resourceGain));
-        toast.error(`You lost ${resourceGain} credits!`, { position: 'top-right' });
-      } else if (resourceType === 1) {
-        dispatch(decreasePlants(resourceGain));
-        toast.error(`You lost ${resourceGain} plants!`, { position: 'top-right' });
-      } else {
-        dispatch(decreaseEnergy(resourceGain));
-        toast.error(`You lost ${resourceGain} energy!`, { position: 'top-right' });
-      }
+      const resourceActions = [
+        () => dispatch(decreaseCredits(resourceGain)),
+        () => dispatch(decreasePlants(resourceGain)),
+        () => dispatch(decreaseEnergy(resourceGain)),
+      ];
+      resourceActions[resourceType]();
+      toast.error(`You lost ${resourceGain} resources!`, { position: 'top-right' });
     }
   };
 
   return (
-    <div 
-      className="flex flex-col items-center p-10 text-white rounded-lg shadow-lg transition-all duration-1000" 
+    <div
+      className="flex flex-col items-center justify-center p-8 text-white min-h-screen transition-all duration-1000"
       style={{ 
         backgroundImage: `url(${currentBackground})`, 
         backgroundSize: 'cover', 
-        backgroundPosition: 'center', 
-        height: '100vh', 
-        width: '100vw' 
+        backgroundPosition: 'center',
       }}
     >
-      <h1 className="text-4xl font-bold mb-8">Mars Terraforming Status</h1>
+      <h1 className="text-4xl font-bold mb-10 text-center">Mars Terraforming Status</h1>
       {gameWon ? (
         <div className="text-3xl font-semibold text-green-500">Game Won! 🎉</div>
       ) : (
         <>
-          <div className="mb-4 text-lg">Oxygen: {oxygen}% 📠</div>
-          <div className="mb-4 text-lg">Temperature: {temperature}°C ❄</div>
-          <div className="mb-4 text-lg">Oceans: {oceans} / 9 💧</div>
-          <div className="mb-4 text-lg">Credits: {credits} 💵</div>
-          <div className="mb-4 text-lg">Plants: {plants} 🌿</div>
-          <div className="mb-4 text-lg">Energy: {energy} ⛮</div>
+          <div className="grid grid-cols-2 gap-6 w-full max-w-md mb-8">
+            <Stat label="Oxygen" value={`${oxygen}% 📠`} />
+            <Stat label="Temperature" value={`${temperature}°C ❄`} />
+            <Stat label="Oceans" value={`${oceans} / 9 💧`} />
+            <Stat label="Credits" value={`${credits} 💵`} />
+            <Stat label="Plants" value={`${plants} 🌿`} />
+            <Stat label="Energy" value={`${energy} ⛮`} />
+          </div>
 
           {/* Progress Bars */}
-          <div className="w-full mb-4">
-            <div className="text-sm mb-1">Oxygen Progress</div>
-            <div className="bg-gray-700 rounded-full h-2">
-              <div 
-                className="bg-green-500 h-full rounded-full" 
-                style={{ width: `${(oxygen / 14) * 100}%` }} 
-              />
-            </div>
-          </div>
+          <Progress label="Oxygen Progress" value={(oxygen / 14) * 100} color="green" />
+          <Progress label="Temperature Progress" value={((temperature + 30) / 38) * 100} color="orange" />
+          <Progress label="Oceans Progress" value={(oceans / 9) * 100} color="blue" />
 
-          <div className="w-full mb-4">
-            <div className="text-sm mb-1">Temperature Progress</div>
-            <div className="bg-gray-700 rounded-full h-2">
-              <div 
-                className="bg-orange-500 h-full rounded-full" 
-                style={{ width: `${((temperature + 30) / 38) * 100}%` }} 
-              />
-            </div>
-          </div>
-
-          <div className="w-full mb-4">
-            <div className="text-sm mb-1">Oceans Progress</div>
-            <div className="bg-gray-700 rounded-full h-2">
-              <div 
-                className="bg-blue-500 h-full rounded-full" 
-                style={{ width: `${(oceans / 9) * 100}%` }} 
-              />
-            </div>
-          </div>
-
-          <div className="space-x-4 mt-6">
-            <button 
-              className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg transition"
-              onClick={() => dispatch(increaseOxygen())}
-            >
-              Increase Oxygen
-            </button>
-            <button 
-              className="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg transition"
-              onClick={() => dispatch(increaseTemperature())}
-            >
-              Increase Temperature
-            </button>
-            <button 
-              className="bg-teal-600 hover:bg-teal-700 text-white py-2 px-4 rounded-lg transition"
-              onClick={() => dispatch(placeOceanTile())}
-            >
-              Place Ocean Tile
-            </button>
-            <button 
-              className="bg-purple-600 hover:bg-purple-700 text-white py-2 px-4 rounded-lg transition"
-              onClick={handleSave}
-            >
-              Save Game
-            </button>
-            <button 
-              className="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-lg transition"
-              onClick={handleLoad}
-            >
-              Load Game
-            </button>
-            <button 
-              className="bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg transition"
-              onClick={triggerEvent}
-            >
-              Trigger Random Event
-            </button>
+          {/* Action Buttons */}
+          <div className="grid grid-cols-2 gap-4 mt-6">
+            {renderButtons(dispatch, handleSave, handleLoad, triggerEvent)}
           </div>
         </>
       )}
     </div>
   );
 }
+
+// Component for displaying stats
+const Stat = ({ label, value }) => (
+  <div className="flex justify-between text-lg font-medium">
+    <span>{label}</span>
+    <span>{value}</span>
+  </div>
+);
+
+// Progress Bar Component
+const Progress = ({ label, value, color }) => (
+  <div className="w-full mb-4">
+    <div className="text-sm mb-1">{label}</div>
+    <div className="bg-gray-700 rounded-full h-2">
+      <div 
+        className={`bg-${color}-500 h-full rounded-full`} 
+        style={{ width: `${value}%` }} 
+      />
+    </div>
+  </div>
+);
+
+// Render Action Buttons
+const renderButtons = (dispatch, handleSave, handleLoad, triggerEvent) => {
+  const buttons = [
+    { text: 'Increase Oxygen', action: increaseOxygen, color: 'blue' },
+    { text: 'Increase Temperature', action: increaseTemperature, color: 'red' },
+    { text: 'Place Ocean Tile', action: placeOceanTile, color: 'teal' },
+    { text: 'Save Game', action: handleSave, color: 'purple' },
+    { text: 'Load Game', action: handleLoad, color: 'indigo' },
+    { text: 'Trigger Random Event', action: triggerEvent, color: 'gray' },
+  ];
+
+  return buttons.map((btn, index) => (
+    <button
+      key={index}
+      className={`bg-${btn.color}-600 hover:bg-${btn.color}-700 text-white py-2 px-4 rounded-lg transition`}
+      onClick={() => dispatch(btn.action())}
+    >
+      {btn.text}
+    </button>
+  ));
+};
